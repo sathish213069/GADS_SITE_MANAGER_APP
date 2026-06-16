@@ -24,6 +24,10 @@ jobs:
       - name: Create fresh Flutter project
         run: flutter create -t app gads_build_app --org com.gads
 
+      - name: Add internet permission
+        run: |
+          sed -i '/<manifest/a\    <uses-permission android:name="android.permission.INTERNET"/>' gads_build_app/android/app/src/main/AndroidManifest.xml
+
       - name: Copy GADS app files
         run: |
           cp pubspec.yaml gads_build_app/pubspec.yaml
