@@ -1,9 +1,9 @@
 name: Flutter Build APK
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
   build:
@@ -21,11 +21,26 @@ jobs:
         with:
           flutter-version: '3.24.5'
 
-      - run: flutter pub get
+      - name: Create fresh Flutter project
+        run: flutter create -t app gads_build_app --org com.gads
 
-      - run: flutter build apk --release
+      - name: Copy GADS app files
+        run: |
+          cp pubspec.yaml gads_build_app/pubspec.yaml
+          rm -rf gads_build_app/lib
+          cp -r lib gads_build_app/lib
+          cp -r assets gads_build_app/assets
 
-      - uses: actions/upload-artifact@v4
+      - name: Get dependencies
+        working-directory: gads_build_app
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: gads_build_app
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: gads-site-manager-apk
+          path: gads_build_app/build/app/outputs/flutter-apk/app-release.apk
